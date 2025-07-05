@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        List<CartItem> cartItems = cartItemRepository.findByUserId(Long.valueOf(userId));
+        List<CartItem> cartItems = cartItemRepository.findByUserId(userId);
         if (cartItems.isEmpty()) {
             throw new AppException("No cartItems found ");
         }
@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Create order
         Order order = new Order();
-        order.setUserId(Long.valueOf(userId));
+        order.setUserId(userId);
         order.setTotalAmount(totalPrice);
         order.setStatus(OrderStatus.CONFIRMED);
 

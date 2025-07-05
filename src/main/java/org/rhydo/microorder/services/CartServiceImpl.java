@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(Long.valueOf(userId), cartItemRequest.getProductId())
+        CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(userId, cartItemRequest.getProductId())
                 .orElse(null);
 
         if (existingCartItem != null) {
@@ -44,7 +44,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // Create new cart item
             existingCartItem = new CartItem();
-            existingCartItem.setUserId(Long.valueOf(userId));
+            existingCartItem.setUserId(userId);
             existingCartItem.setProductId(cartItemRequest.getProductId());
             existingCartItem.setQuantity(cartItemRequest.getQuantity());
         }
@@ -65,7 +65,7 @@ public class CartServiceImpl implements CartService {
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        CartItem cartItem = cartItemRepository.findByUserIdAndProductId(Long.valueOf(userId), productId)
+        CartItem cartItem = cartItemRepository.findByUserIdAndProductId(userId, productId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "Productid", productId));
 
         cartItemRepository.deleteById(cartItem.getId());
@@ -77,7 +77,7 @@ public class CartServiceImpl implements CartService {
 //        User user = userRepository.findById(Long.valueOf(userId))
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
-        List<CartItem> cartItems = cartItemRepository.findByUserId(Long.valueOf(userId));
+        List<CartItem> cartItems = cartItemRepository.findByUserId(userId);
 
         return cartItems.stream()
                 .map(cartItem -> modelMapper.map(cartItem, CartItemResponse.class))
@@ -90,6 +90,6 @@ public class CartServiceImpl implements CartService {
 //        User user = userRepository.findById(userId)
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        cartItemRepository.deleteByUserId(Long.valueOf(userId));
+        cartItemRepository.deleteByUserId(userId);
     }
 }
