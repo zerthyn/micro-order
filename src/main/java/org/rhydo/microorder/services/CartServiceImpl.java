@@ -16,26 +16,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
     private final CartItemRepository cartItemRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+//    private final ProductRepository productRepository;
+//    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
     @Override
     public void addToCart(String userId, CartItemRequest cartItemRequest) {
         // Look for product
-        Product product = productRepository.findById(cartItemRequest.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", cartItemRequest.getProductId()));
-
-        if (product.getStockQuantity() < cartItemRequest.getQuantity()) {
-            throw new AppException("Product quantity exceeds stock quantity");
-        }
+//        Product product = productRepository.findById(cartItemRequest.getProductId())
+//                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", cartItemRequest.getProductId()));
+//
+//        if (product.getStockQuantity() < cartItemRequest.getQuantity()) {
+//            throw new AppException("Product quantity exceeds stock quantity");
+//        }
 
         // Look for user
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
+//        User user = userRepository.findById(Long.valueOf(userId))
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(user.getId(), product.getId())
+        CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(Long.valueOf(userId), cartItemRequest.getProductId())
                 .orElse(null);
 
         if (existingCartItem != null) {
@@ -44,28 +44,28 @@ public class CartServiceImpl implements CartService {
         } else {
             // Create new cart item
             existingCartItem = new CartItem();
-            existingCartItem.setUser(user);
-            existingCartItem.setProduct(product);
+            existingCartItem.setUserId(Long.valueOf(userId));
+            existingCartItem.setProductId(cartItemRequest.getProductId());
             existingCartItem.setQuantity(cartItemRequest.getQuantity());
         }
 
         // Save to repository
-        existingCartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(existingCartItem.getQuantity())));
+        existingCartItem.setPrice(BigDecimal.valueOf(1000));
         cartItemRepository.save(existingCartItem);
     }
 
     @Override
     public void deleteCartItem(String userId, Long productId) {
         // Look for product
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+//        Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         // Look for user
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
+//        User user = userRepository.findById(Long.valueOf(userId))
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        CartItem cartItem = cartItemRepository.findByUserIdAndProductId(user.getId(), product.getId())
+        CartItem cartItem = cartItemRepository.findByUserIdAndProductId(Long.valueOf(userId), productId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "Productid", productId));
 
         cartItemRepository.deleteById(cartItem.getId());
@@ -74,10 +74,10 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<CartItemResponse> getCartItems(String userId) {
         // Look for user
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
+//        User user = userRepository.findById(Long.valueOf(userId))
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
-        List<CartItem> cartItems = cartItemRepository.findByUserId(user.getId());
+        List<CartItem> cartItems = cartItemRepository.findByUserId(Long.valueOf(userId));
 
         return cartItems.stream()
                 .map(cartItem -> modelMapper.map(cartItem, CartItemResponse.class))
@@ -85,11 +85,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void clearCart(Long userId) {
+    public void clearCart(String userId) {
         // Look for user
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        cartItemRepository.deleteByUserId(user.getId());
+        cartItemRepository.deleteByUserId(Long.valueOf(userId));
     }
 }

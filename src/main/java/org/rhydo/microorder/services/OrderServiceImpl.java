@@ -5,7 +5,6 @@ import org.modelmapper.ModelMapper;
 import org.rhydo.microorder.dtos.OrderResponse;
 import org.rhydo.microorder.enums.OrderStatus;
 import org.rhydo.microorder.exceptions.AppException;
-import org.rhydo.microorder.exceptions.ResourceNotFoundException;
 import org.rhydo.microorder.models.CartItem;
 import org.rhydo.microorder.models.Order;
 import org.rhydo.microorder.models.OrderItem;
@@ -21,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
+//    private final UserRepository userRepository;
     private final CartItemRepository cartItemRepository;
     private final CartService cartService;
     private final ModelMapper modelMapper;
@@ -30,11 +29,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrder(String userId) {
         // Look for user
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
+//        User user = userRepository.findById(Long.valueOf(userId))
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
 
         // Look for cartItem
-        List<CartItem> cartItems = cartItemRepository.findByUserId(user.getId());
+        List<CartItem> cartItems = cartItemRepository.findByUserId(Long.valueOf(userId));
         if (cartItems.isEmpty()) {
             throw new AppException("No cartItems found ");
         }
@@ -46,14 +45,14 @@ public class OrderServiceImpl implements OrderService {
 
         // Create order
         Order order = new Order();
-        order.setUser(user);
+        order.setUserId(Long.valueOf(userId));
         order.setTotalAmount(totalPrice);
         order.setStatus(OrderStatus.CONFIRMED);
 
         List<OrderItem> orderItems = cartItems.stream()
                 .map(item -> new OrderItem(
                         null,
-                        item.getProduct(),
+                        item.getProductId(),
                         item.getQuantity(),
                         item.getPrice(),
                         order
@@ -63,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // Clear the cart
-        cartService.clearCart(user.getId());
+        cartService.clearCart(userId);
 
         return modelMapper.map(savedOrder, OrderResponse.class);
     }

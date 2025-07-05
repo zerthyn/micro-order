@@ -17,9 +17,10 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "productId", referencedColumnName = "id", nullable = false)
-    private Product product;
+//    @ManyToOne
+//    @JoinColumn(name = "productId", referencedColumnName = "id", nullable = false)
+//    private Product product;
+    private Long productId;
 
     private Integer quantity;
     private BigDecimal price;

@@ -12,5 +12,5 @@ public interface CartService {
 
     List<CartItemResponse> getCartItems(String userId);
 
-    void clearCart(Long userId);
+    void clearCart(String userId);
 }

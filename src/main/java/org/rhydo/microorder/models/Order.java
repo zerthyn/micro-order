@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.rhydo.microecom.enums.OrderStatus;
+import org.rhydo.microorder.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,9 +23,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id", nullable = false)
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "userId", referencedColumnName = "id", nullable = false)
+//    private User user;
+    private Long userId;
 
     private BigDecimal totalAmount;
 
