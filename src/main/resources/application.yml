@@ -1,16 +1,5 @@
 spring:
   application:
     name: micro-order
-  datasource:
-    url: jdbc:postgresql://localhost:5432/orderdb
-    username: root
-    password: 123456789
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-server:
-  port: 8083
+  config:
+    import: optional:configserver:http://localhost:8888
