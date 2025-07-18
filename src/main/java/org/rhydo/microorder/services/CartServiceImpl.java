@@ -2,8 +2,13 @@ package org.rhydo.microorder.services;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.rhydo.microorder.clients.ProductServiceClient;
+import org.rhydo.microorder.clients.UserServiceClient;
 import org.rhydo.microorder.dtos.CartItemRequest;
 import org.rhydo.microorder.dtos.CartItemResponse;
+import org.rhydo.microorder.dtos.ProductResponse;
+import org.rhydo.microorder.dtos.UserResponse;
+import org.rhydo.microorder.exceptions.AppException;
 import org.rhydo.microorder.exceptions.ResourceNotFoundException;
 import org.rhydo.microorder.models.CartItem;
 import org.rhydo.microorder.repositories.CartItemRepository;
@@ -16,23 +21,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
     private final CartItemRepository cartItemRepository;
-//    private final ProductRepository productRepository;
-//    private final UserRepository userRepository;
+    private final ProductServiceClient productServiceClient;
+    private final UserServiceClient userServiceClient;
     private final ModelMapper modelMapper;
 
     @Override
     public void addToCart(String userId, CartItemRequest cartItemRequest) {
         // Look for product
-//        Product product = productRepository.findById(cartItemRequest.getProductId())
-//                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", cartItemRequest.getProductId()));
-//
-//        if (product.getStockQuantity() < cartItemRequest.getQuantity()) {
-//            throw new AppException("Product quantity exceeds stock quantity");
-//        }
+        ProductResponse product = productServiceClient.getProductDetails(cartItemRequest.getProductId());
+
+        if (product == null) {
+            throw new AppException("Product not found");
+        }
+
+        if (product.getStockQuantity() < cartItemRequest.getQuantity()) {
+            throw new AppException("Product quantity exceeds stock quantity");
+        }
 
         // Look for user
-//        User user = userRepository.findById(Long.valueOf(userId))
-//                .orElseThrow(() -> new ResourceNotFoundException("User", "id", Long.valueOf(userId)));
+        UserResponse user = userServiceClient.getUserDetails(userId);
+
+        if (user == null) {
+            throw new AppException("User not found");
+        }
 
         // Look for cartItem
         CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(userId, cartItemRequest.getProductId())
