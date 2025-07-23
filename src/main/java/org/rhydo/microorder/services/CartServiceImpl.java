@@ -1,5 +1,6 @@
 package org.rhydo.microorder.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.rhydo.microorder.clients.ProductServiceClient;
@@ -26,6 +27,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
+    @CircuitBreaker(name = "productService")
     public void addToCart(String userId, CartItemRequest cartItemRequest) {
         // Look for product
         ProductResponse product = productServiceClient.getProductDetails(cartItemRequest.getProductId());
