@@ -27,7 +27,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
-    @CircuitBreaker(name = "productService")
+    @CircuitBreaker(name = "productService", fallbackMethod = "addToCartFallBack")
     public void addToCart(String userId, CartItemRequest cartItemRequest) {
         // Look for product
         ProductResponse product = productServiceClient.getProductDetails(cartItemRequest.getProductId());
@@ -65,6 +65,14 @@ public class CartServiceImpl implements CartService {
         // Save to repository
         existingCartItem.setPrice(BigDecimal.valueOf(1000));
         cartItemRepository.save(existingCartItem);
+    }
+
+    @SuppressWarnings("unused")
+    public void addToCartFallBack(String userId, CartItemRequest cartItemRequest, Throwable t) {
+        System.out.println("Fallback triggered for user " + userId +
+                " with productId " + cartItemRequest.getProductId() +
+                ". Reason: " + t.getMessage());
+        throw new AppException("Service temporarily unavailable. Please try again later.");
     }
 
     @Override
