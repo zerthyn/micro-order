@@ -1,6 +1,7 @@
 package org.rhydo.microorder.services;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.rhydo.microorder.clients.ProductServiceClient;
@@ -27,6 +28,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Retry(name = "myRetry")
     @CircuitBreaker(name = "productService", fallbackMethod = "addToCartFallBack")
     public void addToCart(String userId, CartItemRequest cartItemRequest) {
         // Look for product
