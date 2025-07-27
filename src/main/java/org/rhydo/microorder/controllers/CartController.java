@@ -1,5 +1,6 @@
 package org.rhydo.microorder.controllers;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.rhydo.microorder.dtos.CartItemRequest;
 import org.rhydo.microorder.dtos.CartItemResponse;
@@ -17,7 +18,9 @@ public class CartController {
 
     private final CartService cartService;
 
+
     @PostMapping
+    @RateLimiter(name = "myRateLimiter")
     public ResponseEntity<String> addToCart(@RequestHeader("X-User-ID") String userId,
                                             @RequestBody CartItemRequest cartItemRequest) {
         cartService.addToCart(userId, cartItemRequest);
