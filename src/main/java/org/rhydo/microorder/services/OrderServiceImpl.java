@@ -10,20 +10,22 @@ import org.rhydo.microorder.models.Order;
 import org.rhydo.microorder.models.OrderItem;
 import org.rhydo.microorder.repositories.CartItemRepository;
 import org.rhydo.microorder.repositories.OrderRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-//    private final UserRepository userRepository;
     private final CartItemRepository cartItemRepository;
     private final CartService cartService;
     private final ModelMapper modelMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -63,6 +65,10 @@ public class OrderServiceImpl implements OrderService {
 
         // Clear the cart
         cartService.clearCart(userId);
+
+        rabbitTemplate.convertAndSend("order.exchange",
+                "order.tracking",
+                Map.of("orderId", savedOrder.getId(), "status", savedOrder.getStatus()));
 
         return modelMapper.map(savedOrder, OrderResponse.class);
     }

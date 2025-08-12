@@ -18,7 +18,7 @@ public class RabbitConfig {
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing.name}")
+    @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
     @Bean
