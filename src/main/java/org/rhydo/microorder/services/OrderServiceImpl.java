@@ -2,6 +2,8 @@ package org.rhydo.microorder.services;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.rhydo.microorder.dtos.OrderCreatedEvent;
+import org.rhydo.microorder.dtos.OrderItemDTO;
 import org.rhydo.microorder.dtos.OrderResponse;
 import org.rhydo.microorder.enums.OrderStatus;
 import org.rhydo.microorder.exceptions.AppException;
@@ -16,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +67,23 @@ public class OrderServiceImpl implements OrderService {
         // Clear the cart
         cartService.clearCart(userId);
 
+        // Publish order created event
+        List<OrderItemDTO> itemDTOs = savedOrder.getItems().stream()
+                .map(item -> modelMapper.map(item, OrderItemDTO.class))
+                .toList();
+
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                savedOrder.getStatus(),
+                itemDTOs,
+                savedOrder.getTotalAmount(),
+                savedOrder.getCreatedAt()
+        );
+
         rabbitTemplate.convertAndSend("order.exchange",
                 "order.tracking",
-                Map.of("orderId", savedOrder.getId(), "status", savedOrder.getStatus()));
+                event);
 
         return modelMapper.map(savedOrder, OrderResponse.class);
     }
